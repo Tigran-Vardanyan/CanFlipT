@@ -71,9 +71,14 @@
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="loading-bar">
-        <img src="TemplateData/Loader.png" style="width: 60px;" class="rotating">
-      </div>
+        <div id="loading-bar" style="position: absolute">
+          <div>
+              <img src="TemplateData/Loader.png" style="width: 60px;" class="rotating">
+          </div>
+        </div>
+        <h1  id="text-test" style="position: absolute; margin: 0;top: 50%;left: 50%;-ms-transform: translate(-50%, -50%);transform: translate(-50%, -50%);   font-size: 15px; color: #ffa404">
+            0
+        </h1>
     </div>
     <input type="file" style="display: none;" id="filePicker">
     <script>
@@ -98,6 +103,10 @@
       const loadingBar = document.querySelector("#unity-loading-bar");
       const loadingBar2 = document.querySelector("#loading-bar");
       const progressBarFull = document.querySelector("#unity-progress-bar-full");
+      const text = document.querySelector("#text-test");
+
+
+
 
       const buildUrl = "Build";
       const loaderUrl = buildUrl + "/CanFlipT.loader.js";
@@ -118,11 +127,14 @@
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+            text.textContent  = Math.round(100 * progress) + "%";
+            progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
                 gameInstance = unityInstance
                 loadingBar.style.display = "none";
                 loadingBar2.style.display = "none";
+                text.style.display = "none";
+                text.style.display = "none";
                 // fullscreenButton.onclick = () => {
                 //   unityInstance.SetFullscreen(1);
                 // };
@@ -148,36 +160,11 @@
               console.log("Fuile url: ", fileUrl);
 
               gameInstance.SendMessage("SelfieSelection", "OnFileSelected", fileUrl);
-            } 
+            }
           }
       }, false);
 
-      // unity should run this function
-      window.unityCallback = function (str) {
-        console.log(str)
 
-        if (window.flutter_inappwebview) {
-          window.flutter_inappwebview.callHandler('macosMessageHandler', str)
-        } 
-        else if (typeof WebViewChannel !== 'undefined') {
-          WebViewChannel.postMessage(str);
-        }
-        else {
-          window.chrome.webview.postMessage(str);
-        }
-        // send message to flutter
-
-      }
-
-      // flutter should run this function
-      window.flutterCallback = function (str) {
-        // send message to unity
-        if (gameInstance) {
-          gameInstance.SendMessage("BridgeManager", "FlutterCallback", str)
-        }
-
-        console.log(str)
-      }
     </script>
   </body>
 </html>
